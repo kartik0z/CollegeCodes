@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Information Form</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <div class="container mt-5">
+        <h2>Student Information Form</h2>
+        <form id="studentForm">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" class="form-control" id="name" placeholder="Enter your name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label>Gender:</label><br>
+                <div class="form-check-inline">
+                    <input class="form-check-input" type="radio" name="gender" id="male" value="male" required>
+                    <label class="form-check-label" for="male"> Male </label>
+                </div>
+                <div class="form-check-inline">
+                    <input class="form-check-input" type="radio" name="gender" id="female" value="female">
+                    <label class="form-check-label" for="female"> Female </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="hobbies">Hobbies:</label><br>
+                <div class="form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="hobby1" value="reading">
+                    <label class="form-check-label" for="hobby1"> Reading </label>
+                </div>
+                <div class="form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="hobby2" value="sports">
+                    <label class="form-check-label" for="hobby2"> Sports </label>
+                </div>
+                <div class="form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="hobby3" value="music">
+                    <label class="form-check-label" for="hobby3"> Music </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="comments">Comments:</label>
+                <textarea class="form-control" id="comments" rows="3" placeholder="Enter your comments"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+
+    <script>
+        let db;
+        
+        // Initialize the IndexedDB
+        window.onload = function() {
+            let request = window.indexedDB.open("StudentDB", 1);
+            
+            request.onerror = function(event) {
+                console.log("Database error: " + event.target.errorCode);
+            };
+            
+            request.onsuccess = function(event) {
+                db = request.result;
+                console.log("Database opened successfully");
+            };
+            
+            request.onupgradeneeded = function(event) {
+                db = event.target.result;
+                let objectStore = db.createObjectStore("students", { keyPath: "id", autoIncrement: true });
+                objectStore.createIndex("name", "name", { unique: false });
+                objectStore.createIndex("email", "email", { unique: true });
+            };
+        }
+
+        // Form submission handling
+        document.getElementById('studentForm').onsubmit = function(event) {
+            event.preventDefault();
+            let name = document.getElementById('name').value;
+            let email = document.getElementById('email').value;
+            let gender = document.querySelector('input[name="gender"]:checked').value;
+            let hobbies = [];
+            document.querySelectorAll('input[type="checkbox"]:checked').forEach((checkbox) => {
+                hobbies.push(checkbox.value);
+            });
+            let comments = document.getElementById('comments').value;
+
+            // Save the form data to IndexedDB
+            let transaction = db.transaction(["students"], "readwrite");
+            let objectStore = transaction.objectStore("students");
+            let request = objectStore.add({
+                name: name,
+                email: email,
+                gender: gender,
+                hobbies: hobbies,
+                comments: comments
+            });
+            
+            request.onsuccess = function(event) {
+                console.log("Student information added to the database.");
+                alert("Form submitted successfully!");
+                document.getElementById('studentForm').reset();
+            };
+            
+            request.onerror = function(event) {
+                console.log("Error adding student information: " + event.target.errorCode);
+            };
+        }
+    </script>
+
+</body>
+</html>
