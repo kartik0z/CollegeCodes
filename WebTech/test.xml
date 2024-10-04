@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>XML Book Library</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        .book {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div id="book-list"></div>
+
+<script>
+    // Example XML string
+    const xmlString = `<?xml version="1.0" encoding="UTF-8"?>
+    <library>
+        <book id="1">
+            <title>Learning XML</title>
+            <author>John Doe</author>
+            <publisher>Tech Books Publishing</publisher>
+            <year>2022</year>
+        </book>
+        <book id="2">
+            <title>Advanced XML Techniques</title>
+            <author>Jane Smith</author>
+            <publisher>Code Press</publisher>
+            <year>2023</year>
+        </book>
+    </library>`;
+
+    // Parse the XML
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlString, "application/xml");
+
+    // Get book elements
+    const books = xmlDoc.getElementsByTagName("book");
+    const bookList = document.getElementById("book-list");
+
+    // Loop through books and display them
+    for (let i = 0; i < books.length; i++) {
+        const title = books[i].getElementsByTagName("title")[0].textContent;
+        const author = books[i].getElementsByTagName("author")[0].textContent;
+        const publisher = books[i].getElementsByTagName("publisher")[0].textContent;
+        const year = books[i].getElementsByTagName("year")[0].textContent;
+
+        // Create a book div
+        const bookDiv = document.createElement("div");
+        bookDiv.className = "book";
+        bookDiv.innerHTML = `<h2>${title}</h2><p>Author: ${author}</p><p>Publisher: ${publisher}</p><p>Year: ${year}</p>`;
+
+        // Append to book list
+        bookList.appendChild(bookDiv);
+    }
+</script>
+
+</body>
+</html>
